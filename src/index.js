@@ -1,18 +1,34 @@
 /* 
   Based on:
-  https://graphql.org/graphql-js/
-  
-*/
-const { graphql, buildSchema } = require("graphql");
+  https://github.com/graphql/graphql-js
 
+*/
+
+const {
+  graphql,
+  GraphQLSchema,
+  GraphQLObjectType,
+  GraphQLString
+} = require("graphql");
+
+/*
 const schema = buildSchema(`
 type Query {
   info: String
-}
-`);
+}`);
+*/
+const schema = new GraphQLSchema({
+  query: new GraphQLObjectType({
+    name: "QueryType",
+    fields: {
+      info: {
+        type: GraphQLString,
+        resolve() {
+          return "Hello GrpahQL!";
+        }
+      }
+    }
+  })
+});
 
-const resolvers = {
-  info: () => "Hello world!"
-};
-
-graphql(schema, "{info}", resolvers).then(console.log);
+graphql(schema, "{info}").then(console.log);
