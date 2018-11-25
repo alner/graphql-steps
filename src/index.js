@@ -12,10 +12,13 @@ const {
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLNonNull,
+  GraphQLID,
   GraphQLString,
   GraphQLEnumType,
   GraphQLList
 } = require("graphql");
+
+const { getInfoById } = require("./data");
 
 const KindEnum = new GraphQLEnumType({
   name: "Kind",
@@ -46,6 +49,10 @@ const TagType = new GraphQLObjectType({
 const InfoType = new GraphQLObjectType({
   name: "Info",
   fields: () => ({
+    id: {
+      type: GraphQLID,
+      description: "Info id"
+    },
     kind: {
       type: KindEnum,
       description: "Info kind"
@@ -56,15 +63,15 @@ const InfoType = new GraphQLObjectType({
     },
     tags: {
       type: GraphQLList(TagType),
-      description: "Tags for info",
-      resolve: info => {
-        console.log("Tags resolver for: ", info);
-        if (info.kind == 1) {
-          return [{ name: "REQ_TAG" }];
-        } else {
-          return [{ name: "UNKNOWN_TAG" }];
-        }
-      }
+      description: "Tags for info"
+      // resolve: info => {
+      //   console.log("Tags resolver for: ", info);
+      //   if (info.kind == 1) {
+      //     return [{ name: "REQ_TAG" }];
+      //   } else {
+      //     return [{ name: "UNKNOWN_TAG" }];
+      //   }
+      // }
     }
   })
 });
@@ -76,17 +83,19 @@ const schema = new GraphQLSchema({
       info: {
         type: InfoType,
         args: {
-          kind: {
-            type: KindEnum,
-            description: "info kind parameter"
+          id: {
+            type: GraphQLID,
+            description: "Info id parameter"
           }
         },
         resolve(root, args) {
           console.log("Args: ", args);
-          return {
-            kind: args.kind,
-            description: `Hello ${args.kind || "graphql"}!`
-          };
+          return getInfoById(args.id);
+          // return {
+          //   id: "123",
+          //   kind: args.kind,
+          //   description: `Hello ${args.kind || "graphql"}!`
+          // };
         }
       }
     }
@@ -94,7 +103,8 @@ const schema = new GraphQLSchema({
 });
 
 const query = `{
-  info(kind: REQUEST) {
+  info(id: "321") {
+    id
     kind
     description
     tags {
