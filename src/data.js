@@ -31,6 +31,7 @@ const INFO_DATA = {
 
 // Emaulate request for INFO API
 module.exports.getInfoById = id => INFO_DATA[id];
+module.exports.getAllInfo = () => Object.values(INFO_DATA);
 
 // Emulate request for TAGS API
 module.exports.getTagsFor = info => TAGS_INFO_DATA[info.id];

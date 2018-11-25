@@ -18,7 +18,7 @@ const {
   GraphQLList
 } = require("graphql");
 
-const { getInfoById, getTagsFor } = require("./data");
+const { getInfoById, getAllInfo, getTagsFor } = require("./data");
 
 const KindEnum = new GraphQLEnumType({
   name: "Kind",
@@ -85,6 +85,13 @@ const schema = new GraphQLSchema({
           console.log("Args: ", args);
           return getInfoById(args.id);
         }
+      },
+
+      allInfo: {
+        type: GraphQLList(InfoType),
+        resolve(root, args, info) {
+          return getAllInfo();
+        }
       }
     }
   })
@@ -101,6 +108,17 @@ const query = `{
   }
 }`;
 
-graphql(schema, query).then(response =>
+const query2 = `{
+  allInfo {
+    id
+    kind
+    description
+    tags {
+      name
+    }
+  }
+}`;
+
+graphql(schema, query2).then(response =>
   console.log(JSON.stringify(response, null, 2))
 );
