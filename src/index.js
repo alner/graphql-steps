@@ -19,21 +19,27 @@ type Query {
 */
 const schema = new GraphQLSchema({
   query: new GraphQLObjectType({
-    name: "QueryType",
+    name: "Query",
     fields: {
       info: {
-        type: GraphQLString
-        // resolve() {
-        //   return 'world';
-        // }
+        type: GraphQLString,
+        args: {
+          kind: {
+            type: GraphQLString,
+            description: "info kind parameter"
+          }
+        },
+        resolve(root, args) {
+          console.log("Args: ", args);
+          return `Info ${args.kind || "graphql"}!`;
+        }
       }
     }
   })
 });
 
-// Split schema and resolvers
-const resolvers = {
-  info: () => "Hello GraphQL resolvers!"
-};
+const query = `{
+  info(kind: "test")
+}`;
 
-graphql(schema, "{info}", resolvers).then(console.log);
+graphql(schema, query).then(console.log);
