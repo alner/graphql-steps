@@ -13,7 +13,8 @@ const {
   GraphQLObjectType,
   GraphQLNonNull,
   GraphQLString,
-  GraphQLEnumType
+  GraphQLEnumType,
+  GraphQLList
 } = require("graphql");
 
 const KindEnum = new GraphQLEnumType({
@@ -31,6 +32,17 @@ const KindEnum = new GraphQLEnumType({
   }
 });
 
+const TagType = new GraphQLObjectType({
+  name: "Tag",
+  description: "Tag for info",
+  fields: () => ({
+    name: {
+      type: GraphQLNonNull(GraphQLString),
+      description: "Tag name"
+    }
+  })
+});
+
 const InfoType = new GraphQLObjectType({
   name: "Info",
   fields: () => ({
@@ -41,6 +53,18 @@ const InfoType = new GraphQLObjectType({
     description: {
       type: GraphQLNonNull(GraphQLString),
       description: "Info description"
+    },
+    tags: {
+      type: GraphQLList(TagType),
+      description: "Tags for info",
+      resolve: info => {
+        console.log("Tags resolver for: ", info);
+        if (info.kind == 1) {
+          return [{ name: "REQ_TAG" }];
+        } else {
+          return [{ name: "UNKNOWN_TAG" }];
+        }
+      }
     }
   })
 });
@@ -73,7 +97,12 @@ const query = `{
   info(kind: REQUEST) {
     kind
     description
+    tags {
+      name
+    }
   }
 }`;
 
-graphql(schema, query).then(console.log);
+graphql(schema, query).then(response =>
+  console.log(JSON.stringify(response, null, 2))
+);
