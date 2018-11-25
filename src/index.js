@@ -18,7 +18,7 @@ const {
   GraphQLList
 } = require("graphql");
 
-const { getInfoById } = require("./data");
+const { getInfoById, getTagsFor } = require("./data");
 
 const KindEnum = new GraphQLEnumType({
   name: "Kind",
@@ -63,15 +63,8 @@ const InfoType = new GraphQLObjectType({
     },
     tags: {
       type: GraphQLList(TagType),
-      description: "Tags for info"
-      // resolve: info => {
-      //   console.log("Tags resolver for: ", info);
-      //   if (info.kind == 1) {
-      //     return [{ name: "REQ_TAG" }];
-      //   } else {
-      //     return [{ name: "UNKNOWN_TAG" }];
-      //   }
-      // }
+      description: "Tags for info",
+      resolve: info => getTagsFor(info)
     }
   })
 });
@@ -91,11 +84,6 @@ const schema = new GraphQLSchema({
         resolve(root, args) {
           console.log("Args: ", args);
           return getInfoById(args.id);
-          // return {
-          //   id: "123",
-          //   kind: args.kind,
-          //   description: `Hello ${args.kind || "graphql"}!`
-          // };
         }
       }
     }
