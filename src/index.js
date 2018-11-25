@@ -22,13 +22,18 @@ const schema = new GraphQLSchema({
     name: "QueryType",
     fields: {
       info: {
-        type: GraphQLString,
-        resolve() {
-          return "Hello GrpahQL!";
-        }
+        type: GraphQLString
+        // resolve() {
+        //   return 'world';
+        // }
       }
     }
   })
 });
 
-graphql(schema, "{info}").then(console.log);
+// Split schema and resolvers
+const resolvers = {
+  info: () => "Hello GraphQL resolvers!"
+};
+
+graphql(schema, "{info}", resolvers).then(console.log);
