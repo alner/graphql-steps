@@ -29,9 +29,27 @@ const INFO_DATA = {
   }
 };
 
-// Emaulate request for INFO API
+const EVENTS_DATA = {
+  "123": [
+    {
+      title: "Mega conference",
+      location: "NYC",
+      type: "Conference"
+    },
+    {
+      title: "Webinar 1",
+      url: "https://events.com/webinar1",
+      type: "Webinar"
+    }
+  ]
+};
+
+// Emulate request for INFO API
 module.exports.getInfoById = id => Promise.resolve(INFO_DATA[id]);
 module.exports.getAllInfo = () => Promise.resolve(Object.values(INFO_DATA));
+
+//Emulate events API
+module.exports.getEvents = info => Promise.resolve(EVENTS_DATA[info.id]);
 
 // Emulate request for TAGS API
 module.exports.getTagsFor = info => Promise.resolve(TAGS_INFO_DATA[info.id]);

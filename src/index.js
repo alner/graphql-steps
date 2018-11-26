@@ -15,10 +15,11 @@ const {
   GraphQLID,
   GraphQLString,
   GraphQLEnumType,
-  GraphQLList
+  GraphQLList,
+  GraphQLInterfaceType
 } = require("graphql");
 
-const { getInfoById, getAllInfo, getTagsFor } = require("./data");
+const { getInfoById, getAllInfo, getTagsFor, getEvents } = require("./data");
 
 const KindEnum = new GraphQLEnumType({
   name: "Kind",
@@ -46,6 +47,51 @@ const TagType = new GraphQLObjectType({
   })
 });
 
+const EventInterface = new GraphQLInterfaceType({
+  name: "EventInterface",
+  fields: () => ({
+    title: {
+      type: GraphQLNonNull(GraphQLString),
+      description: "Event title"
+    }
+  }),
+  resolveType(event) {
+    console.log("Event type: ", event);
+    if (event.type == "Webinar") return WebinarType;
+    else if (event.type == "Conference") return ConferenceType;
+  }
+});
+
+const WebinarType = new GraphQLObjectType({
+  name: "Webinar",
+  fields: () => ({
+    title: {
+      type: GraphQLNonNull(GraphQLString),
+      description: "Webinar title"
+    },
+    url: {
+      type: GraphQLNonNull(GraphQLString),
+      description: "Webinar url"
+    }
+  }),
+  interfaces: [EventInterface]
+});
+
+const ConferenceType = new GraphQLObjectType({
+  name: "Conference",
+  fields: () => ({
+    title: {
+      type: GraphQLNonNull(GraphQLString),
+      description: "Conference title"
+    },
+    location: {
+      type: GraphQLNonNull(GraphQLString),
+      description: "Conference location"
+    }
+  }),
+  interfaces: [EventInterface]
+});
+
 const InfoType = new GraphQLObjectType({
   name: "Info",
   fields: () => ({
@@ -65,6 +111,11 @@ const InfoType = new GraphQLObjectType({
       type: GraphQLList(TagType),
       description: "Tags for info",
       resolve: info => getTagsFor(info)
+    },
+    events: {
+      type: GraphQLList(EventInterface),
+      description: "Events list",
+      resolve: info => getEvents(info)
     }
   })
 });
@@ -94,16 +145,26 @@ const schema = new GraphQLSchema({
         }
       }
     }
-  })
+  }),
+  types: [WebinarType, ConferenceType]
 });
 
 const query = `{
-  info(id: "321") {
+  info(id: "123") {
     id
     kind
     description
     tags {
       name
+    }
+    events {
+      title
+      ... on Webinar {
+        url
+      }
+      ...on Conference {
+        location
+      }
     }
   }
 }`;
@@ -119,6 +180,6 @@ const query2 = `{
   }
 }`;
 
-graphql(schema, query2).then(response =>
+graphql(schema, query).then(response =>
   console.log(JSON.stringify(response, null, 2))
 );
